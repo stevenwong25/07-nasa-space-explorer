@@ -11,27 +11,40 @@ setupDateInputs(startInput, endInput);
 const API_KEY = 'fDWhJnFhkqfpLBMmDgkmrqRCqJ6cmp6gwwqrWNrW';
 const gallery = document.getElementById('gallery');
 const button = document.querySelector('button');
+let startDate = startInput.value;
+let endDate = endInput.value;
+
+// Keep the selected dates up to date when either input changes.
+function updateSelectedDates() {
+  startDate = startInput.value;
+  endDate = endInput.value;
+  // console.log('Selected date range:', { startDate, endDate });
+};
+
+startInput.addEventListener('change', updateSelectedDates);
+endInput.addEventListener('change', updateSelectedDates);
 
 // Wait before sending another API request.
-function wait(milliseconds) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, milliseconds);
-  });
-}
+// function wait(milliseconds) {
+//   return new Promise((resolve) => {
+//     setTimeout(resolve, milliseconds);
+//   });
+// }
 
 // Fetch space images for the dates selected by the user.
 async function fetchSpaceImages() {
   button.disabled = true;
   button.classList.add('disabled');
 
-  const startDate = startInput.value;
-  const endDate = endInput.value;
-  const url = `https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=${API_KEY}&start_date=${startDate}&end_date=${endDate}`;
+  selectedStartDate = startInput.value;
+  selectedEndDate = endInput.value;
+
+  const url = `https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=${API_KEY}&start_date=${selectedStartDate}&end_date=${selectedEndDate}`;
 
   gallery.innerHTML = '<p class="placeholder">Loading space images...</p>';
 
   try {
-    await wait(1000);
+    // await wait(1000);
     const response = await fetch(url);
 
     console.log('NASA API request rate limit:', {
@@ -45,14 +58,9 @@ async function fetchSpaceImages() {
 
     const images = await response.json();
 
-    // Log every property from each object returned by NASA.
-    images.forEach((image, index) => {
-      console.log(`NASA image ${index + 1}:`, image);
-    });
-
     gallery.innerHTML = '';
 
-    images.forEach(({ hdurl, alt, date, title, media_type, url }) => {
+    images.slice(0, 9).forEach(({ hdurl, alt, date, title, media_type, url }) => {
       const galleryItem = document.createElement('div');
       galleryItem.classList.add('gallery-item');
 
