@@ -76,19 +76,24 @@ async function fetchSpaceImages() {
       const galleryItem = document.createElement('div');
       galleryItem.classList.add('gallery-item');
 
-      if (media_type === 'video') {
-        const video = document.createElement('iframe');
-        video.src = url;
-        video.title = title;
-        video.allowFullscreen = true;
-        video.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-        galleryItem.appendChild(video);
-      } else {
+      // if (media_type === 'video') {
+      //   const video = document.createElement('iframe');
+      //   video.src = url;
+      //   video.title = title;
+      //   video.allowFullscreen = true;
+      //   video.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      //   galleryItem.appendChild(video);
+      // } else {
+      //   const img = document.createElement('img');
+      //   img.src = hdurl || url;
+      //   img.alt = alt || title;
+      //   galleryItem.appendChild(img);
+      // }
+
         const img = document.createElement('img');
         img.src = hdurl || url;
         img.alt = alt || title;
         galleryItem.appendChild(img);
-      }
 
       // Format the API date as "month day, year".
       const formattedDate = new Date(`${date}T00:00:00`).toLocaleDateString('en-US', {

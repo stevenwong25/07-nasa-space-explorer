@@ -1,6 +1,8 @@
 
 // NOTE: You do not need to edit this file.
 
+// Student Note: There is a bug where selecting the start date properly adjusts the date range to 9 days or less, but selecting the end date does not.
+
 // NASA's APOD API only has images from June 16, 1995 onwards
 const earliestDate = '1995-06-16';
 
