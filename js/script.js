@@ -26,7 +26,7 @@ async function fetchSpaceImages() {
 
   const startDate = startInput.value;
   const endDate = endInput.value;
-  const url = `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&start_date=${startDate}&end_date=${endDate}`;
+  const url = `https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=${API_KEY}&start_date=${startDate}&end_date=${endDate}`;
 
   gallery.innerHTML = '<p class="placeholder">Loading space images...</p>';
 
