@@ -10,9 +10,25 @@ setupDateInputs(startInput, endInput);
 
 const API_KEY = 'fDWhJnFhkqfpLBMmDgkmrqRCqJ6cmp6gwwqrWNrW';
 const gallery = document.getElementById('gallery');
+const funFact = document.getElementById('funFact');
+const funFactText = document.getElementById('funFactText');
 const button = document.querySelector('button');
 let startDate = startInput.value;
 let endDate = endInput.value;
+
+const funFacts = [
+  'NASA’s Apollo 11 mission landed the first humans on the Moon in 1969.',
+  'NASA’s Voyager 1 is the farthest human-made object from Earth.',
+  'The International Space Station travels around Earth at about 17,500 miles per hour.',
+  'NASA’s Hubble Space Telescope has helped scientists observe galaxies billions of light-years away.',
+  'NASA’s Perseverance rover is searching for signs of ancient microbial life on Mars.',
+  'NASA’s James Webb Space Telescope studies the earliest stars and galaxies in the universe.',
+  'A day on Venus is longer than a year on Venus.',
+  'One million Earths could fit inside the Sun.',
+  'The footprints left by Apollo astronauts could stay on the Moon for millions of years.',
+  'Saturn would float in water because it is less dense than water.',
+  'There are more stars in the universe than grains of sand on Earth.'
+];
 
 const modal = document.createElement('div');
 modal.classList.add('modal');
@@ -101,6 +117,7 @@ async function fetchSpaceImages() {
   let selectedEndDate = endInput.value;
 
   if (!selectedStartDate || !selectedEndDate) {
+    funFact.hidden = true;
     gallery.innerHTML = '<p class="placeholder">Please select a valid date range.</p>';
     button.disabled = false;
     button.classList.remove('disabled');
@@ -111,6 +128,7 @@ async function fetchSpaceImages() {
   console.log(url);
 
   gallery.innerHTML = '<p class="placeholder">Loading space images...</p>';
+  funFact.hidden = true;
 
   try {
     // await wait(1000);
@@ -171,7 +189,12 @@ async function fetchSpaceImages() {
       galleryItem.appendChild(dateText);
       gallery.appendChild(galleryItem);
     });
+
+    const randomFact = funFacts[Math.floor(Math.random() * funFacts.length)];
+    funFactText.textContent = randomFact;
+    funFact.hidden = false;
   } catch (error) {
+    funFact.hidden = true;
     gallery.innerHTML = `<p class="placeholder">${error.message}</p>`;
   } finally {
     button.disabled = false;
