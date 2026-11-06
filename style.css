@@ -34,6 +34,13 @@ h1 {
   color: #212121;
 }
 
+h3 {
+  font-family: Verdana, sans-serif;
+  font-weight: bold;
+  color: #212121;
+  margin-top: 10px;
+}
+
 /* Logo */
 .logo {
   width: 140px;
@@ -72,6 +79,10 @@ button {
 }
 button:hover {
   background-color: #0e4db9;
+}
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 /* Stack horizontally on wider screens */
