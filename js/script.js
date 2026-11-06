@@ -14,6 +14,67 @@ const button = document.querySelector('button');
 let startDate = startInput.value;
 let endDate = endInput.value;
 
+const modal = document.createElement('div');
+modal.classList.add('modal');
+modal.setAttribute('aria-hidden', 'true');
+modal.innerHTML = `
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" type="button" aria-label="Close image details">&times;</button>
+    <div class="modal-media"></div>
+    <h2 id="modal-title"></h2>
+    <p class="modal-date"></p>
+    <p class="modal-explanation"></p>
+  </div>
+`;
+document.body.appendChild(modal);
+
+const modalContent = modal.querySelector('.modal-content');
+const modalClose = modal.querySelector('.modal-close');
+const modalMedia = modal.querySelector('.modal-media');
+const modalTitle = modal.querySelector('#modal-title');
+const modalDate = modal.querySelector('.modal-date');
+const modalExplanation = modal.querySelector('.modal-explanation');
+
+function closeModal() {
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+function openModal(image) {
+  modalMedia.innerHTML = '';
+
+  if (image.media_type === 'video') {
+    const video = document.createElement('iframe');
+    video.src = image.url;
+    video.title = image.title;
+    video.allowFullscreen = true;
+    video.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+    modalMedia.appendChild(video);
+  } else {
+    const fullImage = document.createElement('img');
+    fullImage.src = image.hdurl || image.url;
+    fullImage.alt = image.alt || image.title;
+    modalMedia.appendChild(fullImage);
+  }
+
+  modalTitle.textContent = image.title;
+  modalDate.textContent = new Date(`${image.date}T00:00:00`).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+  modalExplanation.innerHTML = image.explanation;
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', (event) => {
+  if (event.target === modal) {
+    closeModal();
+  }
+});
+
 // Keep the selected dates up to date when either input changes.
 function updateSelectedDates() {
   startDate = startInput.value;
@@ -75,28 +136,25 @@ async function fetchSpaceImages() {
 
     gallery.innerHTML = '';
 
-    images.slice(0, selectedDays).forEach(({ hdurl, alt, date, title, media_type, url }) => {
+    images.slice(0, selectedDays).forEach((image) => {
+      const { hdurl, alt, date, title, media_type, url } = image;
       const galleryItem = document.createElement('div');
       galleryItem.classList.add('gallery-item');
+      galleryItem.addEventListener('click', () => openModal(image));
 
-      // if (media_type === 'video') {
-      //   const video = document.createElement('iframe');
-      //   video.src = url;
-      //   video.title = title;
-      //   video.allowFullscreen = true;
-      //   video.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-      //   galleryItem.appendChild(video);
-      // } else {
-      //   const img = document.createElement('img');
-      //   img.src = hdurl || url;
-      //   img.alt = alt || title;
-      //   galleryItem.appendChild(img);
-      // }
-
+      if (media_type === 'video') {
+        const video = document.createElement('iframe');
+        video.src = url;
+        video.title = title;
+        video.allowFullscreen = true;
+        video.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+        galleryItem.appendChild(video);
+      } else {
         const img = document.createElement('img');
         img.src = hdurl || url;
         img.alt = alt || title;
         galleryItem.appendChild(img);
+      }
 
       // Format the API date as "month day, year".
       const formattedDate = new Date(`${date}T00:00:00`).toLocaleDateString('en-US', {
