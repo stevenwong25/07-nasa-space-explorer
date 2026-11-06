@@ -29,4 +29,13 @@ function setupDateInputs(startInput, endInput) {
     endDate.setDate(startDate.getDate() + 8);
     endInput.value = endDate > new Date(today) ? today : endDate.toISOString().split('T')[0];
   });
+
+  // Not part of the original file
+  // Automatically adjust start date to show exactly 9 days of images
+  endInput.addEventListener('change', () => {
+    const endDate = new Date(endInput.value);
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - 8);
+    startInput.value = startDate < new Date(earliestDate) ? earliestDate : startDate.toISOString().split('T')[0];
+  });
 }

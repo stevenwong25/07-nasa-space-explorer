@@ -55,10 +55,11 @@ async function fetchSpaceImages() {
     // await wait(1000);
     const response = await fetch(url);
 
-    console.log('NASA API request rate limit:', {
-      limit: response.headers.get('X-RateLimit-Limit') || 'unknown',
-      remaining: response.headers.get('X-RateLimit-Remaining') || 'unknown'
-    });
+    console.log('NASA API status:', response.status, response.statusText);
+    // console.log('NASA API request rate limit:', {
+    //   limit: response.headers.get('X-RateLimit-Limit') || 'unknown',
+    //   remaining: response.headers.get('X-RateLimit-Remaining') || 'unknown'
+    // });
 
     if (!response.ok) {
       throw new Error('NASA could not provide the images right now.');
