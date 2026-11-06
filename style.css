@@ -7,7 +7,7 @@
 
 /* Base page styles */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Public Sans', sans-serif;
   background-color: #f1f1f1;
   padding: 20px;
 }
@@ -29,13 +29,14 @@ body {
 }
 
 h1 {
-  font-family: Verdana, sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: bold;
   color: #212121;
 }
 
+h2,
 h3 {
-  font-family: Verdana, sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: bold;
   color: #212121;
   margin-top: 10px;
@@ -60,7 +61,7 @@ h3 {
 /* Inputs and buttons */
 input[type="date"],
 button {
-  font-family: Arial, sans-serif;
+  font-family: 'Public Sans', sans-serif;
   font-weight: normal;
   color: #666;
   padding: 10px 15px;
@@ -146,6 +147,12 @@ button:disabled {
   margin-top: 10px;
   padding: 5px;
   font-size: 14px;
+}
+
+.gallery-item > p,
+.modal-date,
+input[type="date"] {
+  font-family: 'DM Mono', monospace;
 }
 
 /* Placeholder content */
