@@ -36,10 +36,18 @@ async function fetchSpaceImages() {
   button.disabled = true;
   button.classList.add('disabled');
 
-  selectedStartDate = startInput.value;
-  selectedEndDate = endInput.value;
+  let selectedStartDate = startInput.value;
+  let selectedEndDate = endInput.value;
+
+  if (!selectedStartDate || !selectedEndDate) {
+    gallery.innerHTML = '<p class="placeholder">Please select a valid date range.</p>';
+    button.disabled = false;
+    button.classList.remove('disabled');
+    return;
+  }
 
   const url = `https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=${API_KEY}&start_date=${selectedStartDate}&end_date=${selectedEndDate}`;
+  console.log(url);
 
   gallery.innerHTML = '<p class="placeholder">Loading space images...</p>';
 
@@ -48,8 +56,8 @@ async function fetchSpaceImages() {
     const response = await fetch(url);
 
     console.log('NASA API request rate limit:', {
-      limit: response.headers.get('X-RateLimit-Limit'),
-      remaining: response.headers.get('X-RateLimit-Remaining')
+      limit: response.headers.get('X-RateLimit-Limit') || 'unknown',
+      remaining: response.headers.get('X-RateLimit-Remaining') || 'unknown'
     });
 
     if (!response.ok) {
@@ -57,10 +65,14 @@ async function fetchSpaceImages() {
     }
 
     const images = await response.json();
+    const selectedDays = Math.floor(
+      (new Date(`${selectedEndDate}T00:00:00`) - new Date(`${selectedStartDate}T00:00:00`)) /
+      (1000 * 60 * 60 * 24)
+    ) + 1;
 
     gallery.innerHTML = '';
 
-    images.slice(0, 9).forEach(({ hdurl, alt, date, title, media_type, url }) => {
+    images.slice(0, selectedDays).forEach(({ hdurl, alt, date, title, media_type, url }) => {
       const galleryItem = document.createElement('div');
       galleryItem.classList.add('gallery-item');
 
