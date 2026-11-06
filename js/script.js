@@ -56,16 +56,18 @@ async function fetchSpaceImages() {
     const response = await fetch(url);
 
     console.log('NASA API status:', response.status, response.statusText);
-    // console.log('NASA API request rate limit:', {
-    //   limit: response.headers.get('X-RateLimit-Limit') || 'unknown',
-    //   remaining: response.headers.get('X-RateLimit-Remaining') || 'unknown'
-    // });
+    console.log('NASA API request rate limit:', {
+      limit: response.headers.get('X-RateLimit-Limit') || 'unknown',
+      remaining: response.headers.get('X-RateLimit-Remaining') || 'unknown'
+    });
 
     if (!response.ok) {
       throw new Error('NASA could not provide the images right now.');
     }
 
     const images = await response.json();
+    console.log('Is array:', Array.isArray(images));
+    console.log('Images:', images);
     const selectedDays = Math.floor(
       (new Date(`${selectedEndDate}T00:00:00`) - new Date(`${selectedStartDate}T00:00:00`)) /
       (1000 * 60 * 60 * 24)
