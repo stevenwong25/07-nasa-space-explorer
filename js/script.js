@@ -8,7 +8,6 @@ const endInput = document.getElementById('endDate');
 // - Restrict dates to NASA's image archive (starting from 1995)
 setupDateInputs(startInput, endInput);
 
-const API_KEY = 'fDWhJnFhkqfpLBMmDgkmrqRCqJ6cmp6gwwqrWNrW';
 const gallery = document.getElementById('gallery');
 const funFact = document.getElementById('funFact');
 const funFactText = document.getElementById('funFactText');
@@ -101,6 +100,11 @@ function updateSelectedDates() {
 startInput.addEventListener('change', updateSelectedDates);
 endInput.addEventListener('change', updateSelectedDates);
 
+// Convert a date input value from YYYY-MM-DD to YYMMDD for the API request.
+function formatDateForApi(date) {
+  return date.replaceAll('-', '').slice(2);
+}
+
 // Wait before sending another API request.
 // function wait(milliseconds) {
 //   return new Promise((resolve) => {
@@ -124,7 +128,10 @@ async function fetchSpaceImages() {
     return;
   }
 
-  const url = `https://science.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=${API_KEY}&start_date=${selectedStartDate}&end_date=${selectedEndDate}`;
+  const formattedStartDate = formatDateForApi(selectedStartDate);
+  const formattedEndDate = formatDateForApi(selectedEndDate);
+  // Does not require an API key
+  const url = `https://science.nasa.gov/wp-json/wp/v2/apod-basic?&per_page=9&date_from=${formattedStartDate}&date_to=${formattedEndDate}`;
   console.log(url);
 
   gallery.innerHTML = '<p class="placeholder">Loading space images...</p>';
@@ -135,10 +142,10 @@ async function fetchSpaceImages() {
     const response = await fetch(url);
 
     console.log('NASA API status:', response.status, response.statusText);
-    console.log('NASA API request rate limit:', {
-      limit: response.headers.get('X-RateLimit-Limit') || 'unknown',
-      remaining: response.headers.get('X-RateLimit-Remaining') || 'unknown'
-    });
+    // console.log('NASA API request rate limit:', {
+    //   limit: response.headers.get('X-RateLimit-Limit') || 'unknown',
+    //   remaining: response.headers.get('X-RateLimit-Remaining') || 'unknown'
+    // });
 
     if (!response.ok) {
       throw new Error('NASA could not provide the images right now.');
