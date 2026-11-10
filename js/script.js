@@ -55,16 +55,102 @@ function closeModal() {
   modal.setAttribute('aria-hidden', 'true');
 }
 
+// Convert YouTube links into URLs that can be used inside an iframe.
+function getVideoEmbedUrl(videoUrl) {
+  try {
+    const url = new URL(videoUrl);
+    const hostname = url.hostname.toLowerCase();
+
+    if (hostname === 'www.ligo.caltech.edu' && url.pathname === '/video/ligo20160211v3') {
+      return 'https://www.youtube.com/embed/I_88S8DWbcU';
+    }
+
+    if (hostname === 'science.nasa.gov' &&
+      url.pathname === '/image-article/apod-2024-may-19-jupiter-diving/') {
+      return 'https://www.youtube.com/embed/uj3Lq7Gu94Y';
+    }
+
+    if (hostname === 'youtu.be') {
+      const videoId = url.pathname.slice(1);
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    }
+
+    if (hostname === 'youtube.com' || hostname === 'www.youtube.com' || hostname === 'm.youtube.com') {
+      const videoId = url.searchParams.get('v');
+
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+  } catch (error) {
+    console.error('Could not prepare video URL:', error);
+  }
+
+  return null;
+}
+
+// NASA stores the YouTube link in the video's explanation.
+function getVideoUrl(videoUrl, explanation) {
+  if (getVideoEmbedUrl(videoUrl)) {
+    return videoUrl;
+  }
+
+  const explanationDocument = new DOMParser().parseFromString(explanation || '', 'text/html');
+  const youtubeLink = [...explanationDocument.querySelectorAll('a')].find((link) => {
+    return getVideoEmbedUrl(link.href);
+  });
+
+  return youtubeLink ? youtubeLink.href : videoUrl;
+}
+
+// Use an iframe only for YouTube, because some video pages block iframe embeds.
+function createVideoPlayer(videoUrl, title, explanation) {
+  const sourceUrl = getVideoUrl(videoUrl, explanation);
+  const embedUrl = getVideoEmbedUrl(sourceUrl);
+
+  if (embedUrl) {
+    const video = document.createElement('iframe');
+    const embedUrlWithOrigin = new URL(embedUrl);
+    embedUrlWithOrigin.searchParams.set('origin', window.location.origin);
+    video.src = embedUrlWithOrigin.href;
+    video.title = title;
+    video.allowFullscreen = true;
+    video.referrerPolicy = 'strict-origin-when-cross-origin';
+    video.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+    video.addEventListener('click', (event) => event.stopPropagation());
+    return video;
+  }
+
+  try {
+    const url = new URL(sourceUrl);
+    const isDirectVideo = /\.(mp4|webm|ogg)(\?.*)?$/i.test(url.pathname + url.search);
+
+    if (isDirectVideo) {
+      const video = document.createElement('video');
+      video.src = url.href;
+      video.title = title;
+      video.controls = true;
+      video.preload = 'metadata';
+      video.addEventListener('click', (event) => event.stopPropagation());
+      return video;
+    }
+  } catch (error) {
+    console.error('Could not prepare video player:', error);
+  }
+
+  const link = document.createElement('a');
+  link.href = videoUrl;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = 'Open video';
+  return link;
+}
+
 function openModal(image) {
   modalMedia.innerHTML = '';
 
   if (image.media_type === 'video') {
-    const video = document.createElement('iframe');
-    video.src = image.url;
-    video.title = image.title;
-    video.allowFullscreen = true;
-    video.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-    modalMedia.appendChild(video);
+    modalMedia.appendChild(createVideoPlayer(image.url, image.title, image.explanation));
   } else {
     const fullImage = document.createElement('img');
     fullImage.src = image.hdurl || image.url;
@@ -161,19 +247,14 @@ async function fetchSpaceImages() {
 
     gallery.innerHTML = '';
 
-    images.slice(0, selectedDays).forEach((image) => {
+    images.forEach((image) => {
       const { hdurl, alt, date, title, media_type, url } = image;
       const galleryItem = document.createElement('div');
       galleryItem.classList.add('gallery-item');
       galleryItem.addEventListener('click', () => openModal(image));
 
       if (media_type === 'video') {
-        const video = document.createElement('iframe');
-        video.src = url;
-        video.title = title;
-        video.allowFullscreen = true;
-        video.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-        galleryItem.appendChild(video);
+        galleryItem.appendChild(createVideoPlayer(url, title, image.explanation));
       } else {
         const img = document.createElement('img');
         img.src = hdurl || url;
